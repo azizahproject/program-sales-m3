@@ -79,6 +79,8 @@ h1{font:800 clamp(30px,7vw,44px)/1 var(--display);letter-spacing:-.025em;margin:
 .pill[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--on-fg)}
 .pill .dot{width:9px;height:9px;border-radius:2px;background:var(--c);flex:none}
 .pill.st{padding-block:8px}
+.row.dv{display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow:visible}
+.pill.dv{justify-content:center;border-radius:6px;padding:10px 12px;font-size:14px}
 
 /* Bulan (arsip) */
 .months{margin-top:12px}
@@ -122,11 +124,11 @@ details[open]>summary .chev{transform:rotate(-135deg);top:24px}
 .badge.hot{background:var(--nett);color:var(--surface)}
 .lead{margin:0 0 12px;font-size:14px;color:var(--muted)}
 .note{margin:12px 0 0;font-size:13px;color:var(--muted);text-wrap:pretty}
-.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
-table{border-collapse:collapse;width:100%;min-width:460px;font-variant-numeric:tabular-nums;font-size:14px}
-th{background:var(--c);color:#fff;font:600 12px/1.25 var(--body);padding:9px 12px;text-align:right;white-space:nowrap;vertical-align:bottom}
+.scroll{display:block;width:fit-content;max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:auto;font-variant-numeric:tabular-nums;font-size:14px}
+th{background:var(--c);color:#fff;font:600 12px/1.25 var(--body);padding:9px 16px;text-align:right;white-space:nowrap;vertical-align:bottom}
 th small{display:block;font-weight:500;font-size:11px;opacity:.85}
-td{padding:8px 12px;border-top:1px solid var(--line);text-align:right;white-space:nowrap;background:var(--rowbg,var(--surface))}
+td{padding:8px 16px;border-top:1px solid var(--line);text-align:right;white-space:nowrap;background:var(--rowbg,var(--surface))}
 th:first-child,td:first-child{text-align:left;position:sticky;left:0;z-index:1}
 td:first-child{white-space:normal;min-width:64px;font-weight:600}
 tr.old{--rowbg:var(--old);color:var(--muted)}
@@ -169,18 +171,13 @@ td.g{color:var(--muted);font-style:italic;font-weight:400}
 .err{margin:12px 0 0;padding:12px 14px;border-radius:4px;background:var(--soon-bg);color:var(--soon-fg);font-size:14px}
 .foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
 .foot p{margin:0 0 4px}
-.credit{margin-top:14px!important;color:var(--fg);font-weight:500}
-.log{margin-top:12px}
-.log summary{font-weight:600;color:var(--fg)}
-.log-r{padding:10px 0;border-bottom:1px dashed var(--line)}
-.log-r b{margin-right:8px;color:var(--fg)}
-.log-r p{margin:2px 0 0}
+.credit{margin:22px 0 0!important;text-align:center;color:var(--muted);font-weight:400;font-size:12px;letter-spacing:.04em}
 @media (max-width:520px){
   .prog>summary{padding:13px 14px}
   .p-body{padding-inline:14px}
   .chev{right:14px}
   table{font-size:13px}
-  th,td{padding:8px 10px}
+  th,td{padding:8px 12px}
 }
 @media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
 </style>
@@ -198,6 +195,7 @@ td.g{color:var(--muted);font-style:italic;font-weight:400}
 <div class="bar">
   <div class="wrap barin">
     <input id="q" type="search" placeholder="Cari program, brand, nomor surat, area" aria-label="Cari program">
+    <div class="row dv" id="dv" role="group" aria-label="Menu program"></div>
     <div class="row" id="st" role="group" aria-label="Status program"></div>
     <div class="row" id="br" role="group" aria-label="Filter brand"></div>
   </div>
@@ -252,7 +250,7 @@ $("theme").addEventListener("click", () => {
 });
 applyTheme();
 
-let BATCHES = [], PROGRAMS = [];
+let BATCHES = [], PROGRAMS = [], upd = "";
 const STATUSES = [
   {k: "aktif", label: "Berjalan", test: p => p.st.run},
   {k: "soon", label: "Segera berakhir", test: p => p.st.k === "soon"},
@@ -328,12 +326,12 @@ function headline(p) {
 }
 function progHTML(p) {
   const st = p.st, br = brandOf(p.brand);
-  const extra = (p.brands || []).map(b => '<span class="tag">' + esc(b) + "</span>").join("");
+  const extra = (p.divisi === "kuliner" ? [p.brand] : []).concat(p.brands || []).map(b => '<span class="tag">' + esc(b) + "</span>").join("");
   const tags = (p.tags || []).map(t => '<span class="tag">' + esc(t) + "</span>").join("");
   const offs = headline(p).slice(0, 4).map(o =>
     '<div class="p-off"><span class="b">' + esc(o.b) + '</span><span class="l">' + esc(o.l) + "</span></div>").join("");
   return '<details class="prog" id="' + esc(p.id) + '" style="--c:' + esc(br.c) + '"><summary>' +
-    '<div class="p-top"><span class="p-brand"><span class="dot"></span>' + esc(p.brand) + "</span>" +
+    '<div class="p-top"><span class="p-brand"><span class="dot"></span>' + esc(p.divisi === "kuliner" ? "Kuliner · " + gk(p) : p.brand) + "</span>" +
     '<span class="chip ' + st.k + '">' + esc(st.label) + "</span>" + (isNew(p) ? '<span class="chip new">BARU</span>' : "") + "</div>" +
     '<div class="p-name">' + esc(p.name) + "</div>" +
     (offs ? '<div class="p-offers">' + offs + "</div>" : "") +
@@ -347,7 +345,7 @@ function brandOf(n) { return BRANDS.find(b => b.n === n) || {n, c: FALLBACK}; }
 
 /* Teks untuk dibagikan ke WhatsApp */
 function shareText(p) {
-  const L = ["*" + p.name + "*", p.brand + (p.no ? " · No. " + p.no : ""), "Periode: " + span(p.start, p.end)];
+  const L = ["*" + p.name + "*", (p.divisi === "kuliner" ? "Kuliner · " + gk(p) + " · " : "") + p.brand + (p.no ? " · No. " + p.no : ""), "Periode: " + span(p.start, p.end)];
   if (p.tags && p.tags.length) L.push(p.tags.join(" · "));
   headline(p).forEach(o => L.push("• " + o.l + ": " + o.b + (o.s ? " (" + o.s + ")" : "")));
   const mech = (p.blocks || []).find(b => b.list && /mekanisme|ketentuan/i.test(b.title)) || (p.blocks || []).find(b => b.list);
@@ -367,13 +365,20 @@ function copyText(text, btn) {
 }
 
 /* State */
-let sKey = "aktif", brandF = "", month = null, query = "";
+let sKey = "aktif", brandF = "", month = null, query = "", div = "reguler";
+const DIVS = [{k: "reguler", label: "Reguler"}, {k: "kuliner", label: "Kuliner"}];
+const gk = p => p.divisi === "kuliner" ? (p.group || p.brand) : p.brand;   /* kunci pengelompokan: brand (Reguler) atau group resto (Kuliner) */
+function pickStatus() {
+  const list = PROGRAMS.filter(p => p.divisi === div);
+  sKey = list.some(STATUSES[0].test) ? "aktif" : list.some(STATUSES[2].test) ? "up" : list.length ? "arsip" : "aktif";
+}
 const openIds = new Set();
 
 function prepare() {
   BATCHES.sort((a, b) => a.updated < b.updated ? -1 : a.updated > b.updated ? 1 : 0);
   PROGRAMS = [].concat.apply([], BATCHES.map(b => b.programs || []));
   PROGRAMS.forEach(p => {
+    p.divisi = p.divisi === "kuliner" ? "kuliner" : "reguler";
     p.st = status(p);
     p.months = monthsFor(p);
     const o = [];
@@ -384,10 +389,10 @@ function prepare() {
       else if (typeof v === "object") Object.keys(v).forEach(k => { if (k !== "id" && k !== "pdf" && k !== "added" && k !== "st" && k !== "months") collect(v[k]); });
     })(p);
     o.push(p.months.map(m => m.name).join(" "));
+    if (p.divisi === "kuliner") o.push("kuliner");
     p.txt = o.join(" ").toLowerCase();
   });
-  /* Jika tidak ada yang berjalan tetapi ada program akan datang atau arsip, buka tab yang berisi */
-  if (!PROGRAMS.some(STATUSES[0].test)) sKey = PROGRAMS.some(STATUSES[2].test) ? "up" : "arsip";
+  pickStatus();
 }
 
 function availMonths() { return CAL.filter(m => PROGRAMS.some(p => p.months.indexOf(m) > -1)); }
@@ -405,7 +410,12 @@ function render() {
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const searching = words.length > 0;
   const st = STATUSES.find(s => s.k === sKey) || STATUSES[0];
-  const base = searching ? PROGRAMS.filter(p => words.every(w => p.txt.indexOf(w) > -1)) : PROGRAMS;
+  const base = searching ? PROGRAMS.filter(p => words.every(w => p.txt.indexOf(w) > -1)) : PROGRAMS.filter(p => p.divisi === div);
+  $("dv").innerHTML = DIVS.map(d => '<button class="pill dv" type="button" data-d="' + d.k + '" aria-pressed="' + (!searching && d.k === div) + '">' + esc(d.label) +
+    " <i>" + PROGRAMS.filter(p => p.divisi === d.k && p.st.run).length + " berjalan</i></button>").join("");
+  const runN = base.filter(STATUSES[0].test).length, soonN = base.filter(STATUSES[1].test).length;
+  $("stamp").innerHTML = (upd ? "<b>Diperbarui " + esc(fd(pd(upd), true)) + "</b>" : "") +
+    (PROGRAMS.length ? "<span>" + runN + " berjalan</span>" + (soonN ? "<span>" + soonN + " segera berakhir</span>" : "") : "");
 
   /* Filter status */
   $("st").innerHTML = STATUSES.map(s => {
@@ -432,16 +442,17 @@ function render() {
 
   /* Filter brand: hitung dari daftar sebelum filter brand */
   const names = [];
-  items.forEach(p => { if (names.indexOf(p.brand) < 0) names.push(p.brand); });
+  items.forEach(p => { if (names.indexOf(gk(p)) < 0) names.push(gk(p)); });
+  const colorFor = n => brandOf((items.find(p => gk(p) === n) || {}).brand).c;
   const order = BRANDS.map(b => b.n).filter(n => names.indexOf(n) > -1).concat(names.filter(n => !BRANDS.some(b => b.n === n)).sort());
   if (brandF && names.indexOf(brandF) < 0) brandF = "";
   $("br").hidden = order.length < 2;
-  $("br").innerHTML = '<button class="pill" type="button" data-b="" aria-pressed="' + (!brandF) + '">Semua brand <i>' + items.length + "</i></button>" +
-    order.map(n => '<button class="pill" type="button" data-b="' + esc(n) + '" style="--c:' + esc(brandOf(n).c) + '" aria-pressed="' + (brandF === n) + '"><span class="dot"></span>' + esc(n) +
-      " <i>" + items.filter(p => p.brand === n).length + "</i></button>").join("");
-  if (brandF) items = items.filter(p => p.brand === brandF);
+  $("br").innerHTML = '<button class="pill" type="button" data-b="" aria-pressed="' + (!brandF) + '">' + (div === "kuliner" && !searching ? "Semua group" : "Semua brand") + ' <i>' + items.length + "</i></button>" +
+    order.map(n => '<button class="pill" type="button" data-b="' + esc(n) + '" style="--c:' + esc(colorFor(n)) + '" aria-pressed="' + (brandF === n) + '"><span class="dot"></span>' + esc(n) +
+      " <i>" + items.filter(p => gk(p) === n).length + "</i></button>").join("");
+  if (brandF) items = items.filter(p => gk(p) === brandF);
 
-  $("title").textContent = searching ? "Hasil Pencarian" : st.k === "aktif" ? "Program Berjalan" : st.k === "soon" ? "Segera Berakhir" : st.k === "up" ? "Akan Datang" : "Arsip Program";
+  $("title").textContent = searching ? "Hasil Pencarian" : st.k === "aktif" ? (div === "kuliner" ? "Program Kuliner" : "Program Berjalan") : st.k === "soon" ? "Segera Berakhir" : st.k === "up" ? "Akan Datang" : "Arsip Program";
   $("list").innerHTML = items.map(p => progHTML(p)).join("");
   items.forEach(p => { if (openIds.has(p.id)) { const el = document.getElementById(p.id); if (el) el.open = true; } });
 
@@ -454,20 +465,21 @@ function render() {
 }
 
 function buildChrome() {
-  const run = PROGRAMS.filter(STATUSES[0].test).length, soon = PROGRAMS.filter(STATUSES[1].test).length;
   const last = BATCHES[BATCHES.length - 1];
-  $("stamp").innerHTML = (last ? "<b>Diperbarui " + esc(fdt(last.updated)) + "</b>" : "") +
-    (PROGRAMS.length ? "<span>" + run + " berjalan</span>" + (soon ? "<span>" + soon + " segera berakhir</span>" : "") : "");
+  upd = CFG.UPDATED || (last && last.updated ? last.updated.slice(0, 10) : "");
   $("foot").innerHTML = (CFG.FOOTNOTE ? "<p>" + esc(CFG.FOOTNOTE) + "</p>" : "") +
-    (BATCHES.length ? '<details class="log"><summary>Riwayat pembaruan</summary>' +
-      BATCHES.map((b, i) => ({v: i + 1, at: b.updated, text: b.text})).reverse().map(c =>
-        '<div class="log-r"><b>Versi ' + esc(c.v) + "</b><span>" + esc(fdt(c.at)) + "</span><p>" + esc(c.text) + "</p></div>").join("") + "</details>" : "") +
-    (CFG.CREDIT ? '<p class="credit">' + esc(CFG.CREDIT) + "</p>" : "");
+    (CFG.CREDIT ? '<p class="credit">' + esc(CFG.CREDIT) + (CFG.CREDIT_YEAR ? "<br>" + esc(CFG.CREDIT_YEAR) : "") + "</p>" : "");
 }
 
 /* Interaksi */
 $("q").addEventListener("input", e => { query = e.target.value; render(); });
 $("st").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (b) { sKey = b.dataset.s; $("q").value = ""; query = ""; render(); } });
+$("dv").addEventListener("click", e => {
+  const b = e.target.closest("[data-d]");
+  if (!b) return;
+  div = b.dataset.d; brandF = ""; $("q").value = ""; query = ""; pickStatus(); render();
+  try { history.replaceState(null, "", location.pathname + location.search + (div === "kuliner" ? "#kuliner" : "")); } catch (err) {}
+});
 $("br").addEventListener("click", e => { const b = e.target.closest("[data-b]"); if (b) { brandF = b.dataset.b; render(); } });
 $("tabs").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (b) { month = b.dataset.m; render(); } });
 $("list").addEventListener("click", e => {
@@ -486,8 +498,10 @@ $("list").addEventListener("toggle", e => {
 /* Buka program dari tautan #id */
 function openFromHash() {
   const id = decodeURIComponent((location.hash || "").slice(1));
+  if (id === "kuliner" || id === "reguler") { div = id; brandF = ""; query = ""; $("q").value = ""; pickStatus(); render(); return; }
   const p = id && PROGRAMS.find(x => x.id === id);
   if (!p) return;
+  div = p.divisi;
   query = ""; $("q").value = ""; brandF = "";
   sKey = p.st.k === "ok" ? "aktif" : p.st.k === "end" ? "arsip" : p.st.k;
   if (p.st.k === "end") { const m = p.months[p.months.length - 1]; if (m) month = m.id; }

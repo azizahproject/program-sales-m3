@@ -14,8 +14,10 @@ window.BATCHES = (window.BATCHES || []).concat([{
         {
           title: "Ringkasan",
           offers: [
-            {l: "Cashback bulanan", b: "Rp600–1.100/CRT", s: "LM 1500ml. LM 330ml Rp300–500/CRT"},
-            {l: "Bonus triwulan", b: "Rp150–700/CRT", s: "LM 1500ml. LM 330ml Rp100–300/CRT"}
+            {l: "Cashback bulanan LM 1500ml", b: "Rp600–1.100/CRT", s: "Tergantung zona A–E"},
+            {l: "Cashback bulanan LM 330ml", b: "Rp300–500/CRT", s: "Tergantung zona A–E"},
+            {l: "Bonus triwulan LM 1500ml", b: "Rp150–700/CRT", s: "Tergantung zona dan capaian 90–99% atau >100%"},
+            {l: "Bonus triwulan LM 330ml", b: "Rp100–300/CRT", s: "Tergantung zona A–E"}
           ],
           kv: [
             ["Periode program", "28 Sep – 27 Des 2026 (W40–52)"],

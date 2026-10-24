@@ -4,7 +4,11 @@
    lalu tambahkan nama file itu ke BATCH_FILES di bawah. index.html tidak perlu diubah.
    ============================================================ */
 window.CONFIG = {
-  BATCH_FILES: ["programs/batch-1.js", "programs/batch-2.js", "programs/batch-3.js"],
+  /* Tanggal pembaruan yang tampil di atas. Ganti setiap kali kamu upload perubahan. Format "TAHUN-BULAN-HARI".
+     Jika dikosongkan, dipakai tanggal dari batch terbaru. */
+  UPDATED: "2026-10-25",
+
+  BATCH_FILES: ["programs/batch-1.js", "programs/batch-2.js", "programs/batch-3.js", "programs/batch-4.js"],
 
   /* Brand baru: tambah satu baris. Warna dipakai untuk penanda brand. */
   BRANDS: [
@@ -24,5 +28,6 @@ window.CONFIG = {
   SOON_DAYS: 7,   /* program ditandai "Segera berakhir" jika sisa hari kurang dari atau sama dengan ini */
   NEW_DAYS: 7,    /* label BARU tampil berapa hari sejak tanggal added */
   FOOTNOTE: "Ringkasan dari surat program. Untuk detail lengkap, lihat surat aslinya.",
-  CREDIT: "Dibuat oleh Azizah Admin RSM M3 JAKUTPUS dengan bantuan Claude AI"
+  CREDIT: "Dibuat oleh Azizah Admin RSM M3 JAKUTPUS",
+  CREDIT_YEAR: "2026"
 };

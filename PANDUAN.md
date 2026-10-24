@@ -32,3 +32,10 @@ Buka `config.js`. Tambah baris di `BRANDS` untuk brand baru, atau di `CAL` untuk
 - Pastikan setiap program punya `id` yang unik.
 - Pastikan nama brand di program sama persis dengan nama di `BRANDS`.
 - Jika ada file yang gagal dimuat, situs menampilkan pesan merah di bawah daftar. Program lain tetap tampil.
+
+## Program Kuliner
+Program divisi kuliner (restoran, cafe, dll) tampil di menu **Kuliner**, dikelompokkan per group resto. Di data program, tambahkan dua isian:
+- `divisi: "kuliner"`
+- `group: "Nama group resto"` (satu surat untuk satu group)
+
+Isian `brand` tetap diisi dengan brand produknya (misalnya Le Minerale). Program tanpa `divisi` otomatis masuk menu Reguler. Alamat langsung ke menu Kuliner: tambahkan `#kuliner` di akhir alamat situs.

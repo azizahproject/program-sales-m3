@@ -6,6 +6,8 @@ window.BATCHES = (window.BATCHES || []).concat([{
   programs: [
     {
       id: "kode-unik-tanpa-spasi",
+      // Program Kuliner: tambahkan dua baris ini. Jika tidak ada, program masuk menu Reguler.
+      // divisi: "kuliner", group: "Nama group resto",
       brand: "Le Minerale",                 // harus sama dengan nama di BRANDS (config.js)
       name: "Nama program",
       code: "TP_0000", no: "Nomor surat",
