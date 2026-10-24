@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Info Program Sales</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: kolom 760px. Header ringkas + ringkasan angka, bar filter lengket (status, brand, cari),
+   lalu daftar kartu program rata. Penawaran utama terlihat tanpa membuka kartu. */
+:root{
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --bg:#F2F4F1; --surface:#FFFFFF; --fg:#16211B; --muted:#56655D; --line:#DAE1DB;
+  --nett:#C4271F; --disc:#12803F; --hl:#FFF0B3; --old:#ECEFEC; --warn-bg:#FFF4F2;
+  --chip:#E3E9E4; --chip-fg:#33443A; --focus:#1456D9; --gold:#FFCB2E; --on-fg:#F2F4F1;
+  --ok-bg:#DCF1E3; --ok-fg:#0E5A2C; --soon-bg:#FFE2DD; --soon-fg:#9B1C14;
+  --end-bg:#E3E7E4; --end-fg:#4F5E56; --up-bg:#DDE8FA; --up-fg:#1B4FA6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1310; --surface:#161E19; --fg:#E7EEE9; --muted:#9AAAA1; --line:#2A372F;
+    --nett:#FF8277; --disc:#62D18D; --hl:#3B3511; --old:#1F2923; --warn-bg:#2A1A18;
+    --chip:#25312A; --chip-fg:#C5D3CA; --focus:#7FA8FF; --on-fg:#0E1310;
+    --ok-bg:#1B3927; --ok-fg:#8EE0AB; --soon-bg:#4A1F1B; --soon-fg:#FFB1A8;
+    --end-bg:#26302B; --end-fg:#9BAAA2; --up-bg:#1C2D4D; --up-fg:#A9C6FF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1310; --surface:#161E19; --fg:#E7EEE9; --muted:#9AAAA1; --line:#2A372F;
+  --nett:#FF8277; --disc:#62D18D; --hl:#3B3511; --old:#1F2923; --warn-bg:#2A1A18;
+  --chip:#25312A; --chip-fg:#C5D3CA; --focus:#7FA8FF; --on-fg:#0E1310;
+  --ok-bg:#1B3927; --ok-fg:#8EE0AB; --soon-bg:#4A1F1B; --soon-fg:#FFB1A8;
+  --end-bg:#26302B; --end-fg:#9BAAA2; --up-bg:#1C2D4D; --up-fg:#A9C6FF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 56px;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.wrap{max-width:760px;margin:0 auto}
+button,input{font:inherit;color:inherit}
+summary{list-style:none;cursor:pointer}
+summary::-webkit-details-marker{display:none}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* Header */
+.hero{padding-block:24px 14px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.theme{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:99px;padding:7px 12px;font-weight:600;font-size:13px;cursor:pointer;min-height:36px;white-space:nowrap}
+.theme:hover{border-color:var(--fg)}
+.eyebrow{font:600 12px/1 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{font:800 clamp(30px,7vw,44px)/1 var(--display);letter-spacing:-.025em;margin:10px 0 0;text-wrap:balance}
+.stamp{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:10px 0 0;font-size:13px;color:var(--muted)}
+.stamp b{color:var(--fg);font-weight:600}
+.stamp span{padding:2px 8px;border-radius:3px;background:var(--chip);color:var(--chip-fg);font-weight:600;font-size:12px}
+.chip{font:600 12px/1 var(--body);padding:5px 10px;border-radius:99px;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok-fg)}
+.chip.soon{background:var(--soon-bg);color:var(--soon-fg)}
+.chip.end{background:var(--end-bg);color:var(--end-fg)}
+.chip.up{background:var(--up-bg);color:var(--up-fg)}
+.chip.new{background:var(--gold);color:#3A2A00}
+
+/* Bar filter lengket */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-block:1px solid var(--line)}
+.barin{display:flex;flex-direction:column;gap:8px;padding-block:10px}
+.barin input{width:100%;min-width:0;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px}
+.row::-webkit-scrollbar{display:none}
+.pill{flex:none;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:7px 12px;border-radius:99px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap}
+.pill i{font-style:normal;font-weight:500;opacity:.75;font-variant-numeric:tabular-nums}
+.pill[aria-pressed="true"]{background:var(--fg);border-color:var(--fg);color:var(--on-fg)}
+.pill .dot{width:9px;height:9px;border-radius:2px;background:var(--c);flex:none}
+.pill.st{padding-block:8px}
+
+/* Bulan (arsip) */
+.months{margin-top:12px}
+.tab-range{margin:6px 0 0;font-size:13px;color:var(--muted)}
+
+/* Kartu program */
+.list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.prog{border:1px solid var(--line);border-radius:6px;background:var(--surface);scroll-margin-top:150px}
+.prog>summary{display:block;padding:14px 16px 14px;position:relative}
+.p-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-right:22px}
+.p-brand{display:inline-flex;align-items:center;gap:7px;font:600 12px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.p-brand .dot{width:10px;height:10px;border-radius:2px;background:var(--c)}
+.p-name{font:700 18px/1.25 var(--display);margin-top:9px;text-wrap:balance;padding-right:22px}
+.p-offers{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 16px;margin-top:10px}
+.p-off{display:flex;flex-direction:column;gap:1px;min-width:0}
+.p-off .l{font-size:13px;line-height:1.3;color:var(--muted)}
+.p-off .b{font:800 19px/1.2 var(--display);color:var(--nett);font-variant-numeric:tabular-nums}
+.p-per{margin-top:10px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px}
+.p-per b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+.chev{position:absolute;right:16px;top:20px;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+details[open]>summary .chev{transform:rotate(-135deg);top:24px}
+.prog[open]>summary{border-bottom:1px solid var(--line)}
+.p-body{padding:12px 16px 18px}
+.p-meta{display:flex;flex-direction:column;gap:12px;margin-bottom:4px}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font:600 11px/1 var(--body);letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:3px;background:var(--chip);color:var(--chip-fg)}
+.acts{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-flex;align-items:center;color:var(--fg);border:1px solid var(--fg);padding:8px 12px;border-radius:4px;text-decoration:none;font-weight:600;font-size:13px;background:var(--surface);cursor:pointer;min-height:36px}
+.btn:hover{background:var(--fg);color:var(--on-fg)}
+.btn.main{background:var(--fg);color:var(--on-fg)}
+.btn.main:hover{background:var(--surface);color:var(--fg)}
+
+/* Blok isi */
+.blk{padding:16px 0;border-top:1px solid var(--line)}
+.p-meta+.blk{margin-top:12px}
+.blk.warn{background:var(--warn-bg)}
+.blk-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin-bottom:12px}
+.blk-t{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
+.blk h3{font:600 17px/1.25 var(--display);margin:0;text-wrap:balance}
+.badge{font:600 11px/1 var(--body);padding:4px 8px;border-radius:3px;background:var(--chip);color:var(--chip-fg);white-space:nowrap}
+.badge.hot{background:var(--nett);color:var(--surface)}
+.lead{margin:0 0 12px;font-size:14px;color:var(--muted)}
+.note{margin:12px 0 0;font-size:13px;color:var(--muted);text-wrap:pretty}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-variant-numeric:tabular-nums;font-size:14px}
+th{background:var(--c);color:#fff;font:600 12px/1.25 var(--body);padding:9px 12px;text-align:right;white-space:nowrap;vertical-align:bottom}
+th small{display:block;font-weight:500;font-size:11px;opacity:.85}
+td{padding:8px 12px;border-top:1px solid var(--line);text-align:right;white-space:nowrap;background:var(--rowbg,var(--surface))}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;z-index:1}
+td:first-child{white-space:normal;min-width:64px;font-weight:600}
+tr.old{--rowbg:var(--old);color:var(--muted)}
+tr.new{--rowbg:var(--hl)}
+td.d{color:var(--disc);font-weight:600}
+td.r{color:var(--nett);font-weight:700}
+td.g{color:var(--muted);font-style:italic;font-weight:400}
+.offers{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:12px}
+.offer{padding:12px 14px;border-radius:4px;background:color-mix(in srgb,var(--c) 11%,var(--surface))}
+.offer .l{font-size:13px;color:var(--muted)}
+.offer .b{font:800 22px/1.15 var(--display);color:var(--nett);margin-top:2px}
+.offer .s{font-size:13px;color:var(--muted);margin-top:3px}
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px 32px}
+.g-h{font:600 12px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-bottom:6px}
+.trow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);font-variant-numeric:tabular-nums}
+.trow b{color:var(--disc);white-space:nowrap}
+.trow.hi b{color:var(--nett)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.fact{padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.fact .t{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fact .h{font:600 17px/1.25 var(--display);margin:7px 0 4px}
+.fact p{margin:3px 0 0;font-size:14px}
+.kv{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 24px}
+.kv>div{min-width:0}
+.kv dt{font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.kv dd{margin:5px 0 0;font-weight:500;overflow-wrap:anywhere}
+.offers+.kv{margin-top:2px}
+.pts{margin:0;padding-left:20px}
+.pts li{margin:7px 0;padding-left:4px}
+.rule{margin-top:12px;padding:12px 14px;border-radius:4px;background:var(--c);color:#fff}
+.rule b{display:block;font:600 11px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;opacity:.9;margin-bottom:6px}
+.rule span{font:700 17px/1.3 var(--display);color:var(--gold)}
+.fold>summary{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.fold>summary .blk-h{margin-bottom:0;flex:1}
+.fold[open]>summary{margin-bottom:12px}
+.fold>summary .chev{position:static;margin:0 4px 3px 6px;flex:none}
+.fold[open]>summary .chev{margin-bottom:-2px}
+
+.empty{margin:20px 0 0;padding:28px 16px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:6px}
+.err{margin:12px 0 0;padding:12px 14px;border-radius:4px;background:var(--soon-bg);color:var(--soon-fg);font-size:14px}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.foot p{margin:0 0 4px}
+.credit{margin-top:14px!important;color:var(--fg);font-weight:500}
+.log{margin-top:12px}
+.log summary{font-weight:600;color:var(--fg)}
+.log-r{padding:10px 0;border-bottom:1px dashed var(--line)}
+.log-r b{margin-right:8px;color:var(--fg)}
+.log-r p{margin:2px 0 0}
+@media (max-width:520px){
+  .prog>summary{padding:13px 14px}
+  .p-body{padding-inline:14px}
+  .chev{right:14px}
+  table{font-size:13px}
+  th,td{padding:8px 10px}
+}
+@media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="topline"><div class="eyebrow">Info Program Sales</div>
+      <button class="theme" id="theme" type="button" aria-label="Ganti tema tampilan"></button></div>
+    <h1 id="title">Program Berjalan</h1>
+    <p class="stamp" id="stamp"></p>
+  </header>
+</div>
+
+<div class="bar">
+  <div class="wrap barin">
+    <input id="q" type="search" placeholder="Cari program, brand, nomor surat, area" aria-label="Cari program">
+    <div class="row" id="st" role="group" aria-label="Status program"></div>
+    <div class="row" id="br" role="group" aria-label="Filter brand"></div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="months" id="months" hidden>
+    <div class="row" id="tabs" role="group" aria-label="Bulan"></div>
+    <p class="tab-range" id="tabrange"></p>
+  </div>
+  <div class="list" id="list"></div>
+  <p class="empty" id="empty" hidden></p>
+  <div class="err" id="err" hidden></div>
+  <footer class="foot" id="foot"></footer>
+</main>
+
+<script src="config.js"></script>
+<script>
+/* Data program ada di folder programs/. Cara menambah program: lihat config.js dan programs/_template.js.
+   Halaman ini tidak perlu diubah. */
+const CFG = window.CONFIG || {};
+const BRANDS = CFG.BRANDS || [], CAL = CFG.CAL || [];
+const SOON = CFG.SOON_DAYS == null ? 7 : CFG.SOON_DAYS, NEWD = CFG.NEW_DAYS == null ? 7 : CFG.NEW_DAYS;
+const FALLBACK = "#33443A";
+const MON = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const DAY = 864e5;
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pd = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+const fd = (d, yr) => d.getDate() + " " + MON[d.getMonth()] + (yr ? " " + d.getFullYear() : "");
+const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const now = new Date();
+const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+const todayISO = iso(today);
+const span = (s, e) => { const a = pd(s), b = pd(e); return a.getFullYear() === b.getFullYear() ? fd(a) + " – " + fd(b, true) : fd(a, true) + " – " + fd(b, true); };
+const fdt = s => fd(pd(s.slice(0, 10)), true) + ", " + s.slice(11, 16).replace(":", ".") + " WIB";
+const $ = id => document.getElementById(id);
+
+/* Tema: Otomatis (ikut perangkat), Terang, Gelap. Pilihan diingat di perangkat ini. */
+const THEMES = [{k: "auto", label: "Tema: Otomatis"}, {k: "light", label: "Tema: Terang"}, {k: "dark", label: "Tema: Gelap"}];
+const rootEl = document.documentElement, initialTheme = rootEl.getAttribute("data-theme");
+let themeK = "auto";
+try { const t = localStorage.getItem("tema-info-program"); if (THEMES.some(x => x.k === t)) themeK = t; } catch (e) {}
+function applyTheme() {
+  if (themeK === "auto") { if (initialTheme) rootEl.setAttribute("data-theme", initialTheme); else rootEl.removeAttribute("data-theme"); }
+  else rootEl.setAttribute("data-theme", themeK);
+  $("theme").textContent = THEMES.find(x => x.k === themeK).label;
+}
+$("theme").addEventListener("click", () => {
+  themeK = THEMES[(THEMES.findIndex(x => x.k === themeK) + 1) % THEMES.length].k;
+  try { localStorage.setItem("tema-info-program", themeK); } catch (e) {}
+  applyTheme();
+});
+applyTheme();
+
+let BATCHES = [], PROGRAMS = [];
+const STATUSES = [
+  {k: "aktif", label: "Berjalan", test: p => p.st.run},
+  {k: "soon", label: "Segera berakhir", test: p => p.st.k === "soon"},
+  {k: "up", label: "Akan datang", test: p => p.st.k === "up"},
+  {k: "arsip", label: "Arsip", test: p => p.st.k === "end"}
+];
+
+function status(p) {
+  const s = pd(p.start), e = pd(p.end);
+  if (today < s) return {k: "up", run: false, left: null, label: "Mulai " + Math.round((s - today) / DAY) + " hari lagi"};
+  if (today > e) return {k: "end", run: false, left: null, label: "Sudah berakhir"};
+  const left = Math.round((e - today) / DAY);
+  return {k: left <= SOON ? "soon" : "ok", run: true, left, label: left === 0 ? "Berakhir hari ini" : "Sisa " + left + " hari"};
+}
+function isNew(p) {
+  if (!p.added) return false;
+  const n = Math.round((today - pd(p.added)) / DAY);
+  return n >= 0 && n <= NEWD;
+}
+const monthsFor = p => CAL.filter(m => p.start <= m.end && p.end >= m.start);
+
+/* Isi blok */
+function table(t) {
+  const head = t.cols.map(c => "<th>" + esc(c.h) + (c.s ? "<small>" + esc(c.s) + "</small>" : "") + "</th>").join("");
+  const rows = t.rows.map(r => {
+    const cells = r.c.map((v, i) => {
+      const col = t.cols[i] || {}, cl = [];
+      if (col.d) cl.push("d");
+      if (col.r || (r.e && col.n)) cl.push("r");
+      if (col.o || (r.m && r.m.indexOf(i) > -1)) cl.push("g");
+      return '<td class="' + cl.join(" ") + '">' + esc(v) + "</td>";
+    }).join("");
+    return '<tr class="' + (r.k || "") + '">' + cells + "</tr>";
+  }).join("");
+  return '<div class="scroll"><table><thead><tr>' + head + "</tr></thead><tbody>" + rows + "</tbody></table></div>";
+}
+function block(b) {
+  const badge = b.badge ? '<span class="badge ' + esc(b.badge[1] || "") + '">' + esc(b.badge[0]) + "</span>" : "";
+  const head = '<div class="blk-h"><div class="blk-t"><h3>' + esc(b.title) + "</h3>" + badge + "</div></div>";
+  let h = "";
+  if (b.lead) h += '<p class="lead">' + esc(b.lead) + "</p>";
+  if (b.offers) h += '<div class="offers">' + b.offers.map(o =>
+    '<div class="offer"><div class="l">' + esc(o.l) + '</div><div class="b">' + esc(o.b) + "</div>" +
+    (o.s ? '<div class="s">' + esc(o.s) + "</div>" : "") + "</div>").join("") + "</div>";
+  if (b.facts) h += '<div class="facts">' + b.facts.map(f =>
+    '<div class="fact"><div class="t">' + esc(f.t) + '</div><div class="h">' + esc(f.h) + "</div>" +
+    f.p.map(x => "<p>" + esc(x) + "</p>").join("") + "</div>").join("") + "</div>";
+  if (b.groups) h += '<div class="groups">' + b.groups.map(g =>
+    '<div><div class="g-h">' + esc(g.h) + "</div>" + g.items.map(i =>
+      '<div class="trow' + (i[2] ? " hi" : "") + '"><span>' + esc(i[0]) + "</span><b>" + esc(i[1]) + "</b></div>").join("") + "</div>").join("") + "</div>";
+  if (b.kv) h += '<dl class="kv">' + b.kv.map(r => "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>").join("") + "</dl>";
+  if (b.list) h += '<ul class="pts">' + b.list.map(x => "<li>" + esc(x) + "</li>").join("") + "</ul>";
+  if (b.table) h += table(b.table);
+  if (b.rule) h += '<div class="rule"><b>' + esc(b.rule.label) + "</b><span>" + esc(b.rule.text) + "</span></div>";
+  if (b.note) h += '<p class="note">' + esc(b.note) + "</p>";
+  if (b.fold) return '<details class="blk fold"><summary>' + head + '<span class="chev" aria-hidden="true"></span></summary>' + h + "</details>";
+  return '<div class="blk' + (b.warn ? " warn" : "") + '">' + head + h + "</div>";
+}
+function pdfLinks(p) {
+  if (!p) return "";
+  const v = p.view || (p.id && "https://drive.google.com/file/d/" + p.id + "/view");
+  const d = p.download || (p.id && "https://drive.google.com/uc?export=download&id=" + p.id);
+  let h = "";
+  if (v) h += '<a class="btn" href="' + esc(v) + '" target="_blank" rel="noopener">Lihat surat</a>';
+  if (d) h += '<a class="btn" href="' + esc(d) + '" download target="_blank" rel="noopener">Unduh PDF</a>';
+  return h;
+}
+
+/* Penawaran utama untuk kartu: dari blok pertama yang punya offers */
+function headline(p) {
+  for (const b of p.blocks || []) if (b.offers && b.offers.length) return b.offers;
+  return [];
+}
+function progHTML(p) {
+  const st = p.st, br = brandOf(p.brand);
+  const extra = (p.brands || []).map(b => '<span class="tag">' + esc(b) + "</span>").join("");
+  const tags = (p.tags || []).map(t => '<span class="tag">' + esc(t) + "</span>").join("");
+  const offs = headline(p).slice(0, 4).map(o =>
+    '<div class="p-off"><span class="b">' + esc(o.b) + '</span><span class="l">' + esc(o.l) + "</span></div>").join("");
+  return '<details class="prog" id="' + esc(p.id) + '" style="--c:' + esc(br.c) + '"><summary>' +
+    '<div class="p-top"><span class="p-brand"><span class="dot"></span>' + esc(p.brand) + "</span>" +
+    '<span class="chip ' + st.k + '">' + esc(st.label) + "</span>" + (isNew(p) ? '<span class="chip new">BARU</span>' : "") + "</div>" +
+    '<div class="p-name">' + esc(p.name) + "</div>" +
+    (offs ? '<div class="p-offers">' + offs + "</div>" : "") +
+    '<div class="p-per"><b>' + esc(span(p.start, p.end)) + "</b>" + (p.no ? "<span>" + esc(p.no) + "</span>" : "") + "</div>" +
+    '<span class="chev" aria-hidden="true"></span></summary>' +
+    '<div class="p-body"><div class="p-meta"><div class="tags">' + tags + extra + '</div>' +
+    '<div class="acts"><button class="btn main" type="button" data-copy="' + esc(p.id) + '">Salin untuk WhatsApp</button>' + pdfLinks(p.pdf) + "</div></div>" +
+    (p.blocks || []).map(block).join("") + "</div></details>";
+}
+function brandOf(n) { return BRANDS.find(b => b.n === n) || {n, c: FALLBACK}; }
+
+/* Teks untuk dibagikan ke WhatsApp */
+function shareText(p) {
+  const L = ["*" + p.name + "*", p.brand + (p.no ? " · No. " + p.no : ""), "Periode: " + span(p.start, p.end)];
+  if (p.tags && p.tags.length) L.push(p.tags.join(" · "));
+  headline(p).forEach(o => L.push("• " + o.l + ": " + o.b + (o.s ? " (" + o.s + ")" : "")));
+  const mech = (p.blocks || []).find(b => b.list && /mekanisme|ketentuan/i.test(b.title)) || (p.blocks || []).find(b => b.list);
+  if (mech) { L.push("", "*" + mech.title + "*"); mech.list.forEach(x => L.push("- " + x)); }
+  L.push("", location.href.split("#")[0] + "#" + p.id);
+  return L.join("\n");
+}
+function copyText(text, btn) {
+  const done = () => { const o = btn.textContent; btn.textContent = "Tersalin"; setTimeout(() => { btn.textContent = o; }, 1800); };
+  const fallback = () => {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand("copy"); done(); } catch (e) { btn.textContent = "Gagal menyalin"; }
+    document.body.removeChild(ta);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+}
+
+/* State */
+let sKey = "aktif", brandF = "", month = null, query = "";
+const openIds = new Set();
+
+function prepare() {
+  BATCHES.sort((a, b) => a.updated < b.updated ? -1 : a.updated > b.updated ? 1 : 0);
+  PROGRAMS = [].concat.apply([], BATCHES.map(b => b.programs || []));
+  PROGRAMS.forEach(p => {
+    p.st = status(p);
+    p.months = monthsFor(p);
+    const o = [];
+    (function collect(v) {
+      if (v == null) return;
+      if (typeof v === "string" || typeof v === "number") o.push(String(v));
+      else if (Array.isArray(v)) v.forEach(collect);
+      else if (typeof v === "object") Object.keys(v).forEach(k => { if (k !== "id" && k !== "pdf" && k !== "added" && k !== "st" && k !== "months") collect(v[k]); });
+    })(p);
+    o.push(p.months.map(m => m.name).join(" "));
+    p.txt = o.join(" ").toLowerCase();
+  });
+  /* Jika tidak ada yang berjalan tetapi ada program akan datang atau arsip, buka tab yang berisi */
+  if (!PROGRAMS.some(STATUSES[0].test)) sKey = PROGRAMS.some(STATUSES[2].test) ? "up" : "arsip";
+}
+
+function availMonths() { return CAL.filter(m => PROGRAMS.some(p => p.months.indexOf(m) > -1)); }
+function defaultMonth() {
+  const av = availMonths();
+  if (!av.length) return null;
+  const cur = av.find(m => m.start <= todayISO && m.end >= todayISO);
+  if (cur) return cur.id;
+  const past = av.filter(m => m.start <= todayISO);
+  return (past.length ? past[past.length - 1] : av[0]).id;
+}
+const byEnd = (a, b) => a.end < b.end ? -1 : a.end > b.end ? 1 : a.name.localeCompare(b.name);
+
+function render() {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const searching = words.length > 0;
+  const st = STATUSES.find(s => s.k === sKey) || STATUSES[0];
+  const base = searching ? PROGRAMS.filter(p => words.every(w => p.txt.indexOf(w) > -1)) : PROGRAMS;
+
+  /* Filter status */
+  $("st").innerHTML = STATUSES.map(s => {
+    const n = base.filter(s.test).length;
+    return '<button class="pill st" type="button" data-s="' + s.k + '" aria-pressed="' + (!searching && s.k === sKey) + '">' + esc(s.label) + " <i>" + n + "</i></button>";
+  }).join("");
+
+  /* Pilih daftar */
+  let items = searching ? base.slice().sort(byEnd) : base.filter(st.test);
+  const months = $("months");
+  months.hidden = true;
+  if (!searching && sKey === "arsip") {
+    const av = availMonths().filter(m => base.some(p => p.st.k === "end" && p.months.indexOf(m) > -1));
+    if (av.length) {
+      if (!month || !av.some(m => m.id === month)) month = av[av.length - 1].id;
+      items = items.filter(p => p.months.some(m => m.id === month));
+      months.hidden = false;
+      $("tabs").innerHTML = av.map(m => '<button class="pill" type="button" data-m="' + m.id + '" aria-pressed="' + (m.id === month) + '">' + esc(m.short) + "</button>").join("");
+      const cm = CAL.find(m => m.id === month);
+      $("tabrange").textContent = cm ? cm.name + ": " + span(cm.start, cm.end) : "";
+    }
+    items = items.sort((a, b) => a.end < b.end ? 1 : -1);
+  } else if (!searching) items = items.sort(byEnd);
+
+  /* Filter brand: hitung dari daftar sebelum filter brand */
+  const names = [];
+  items.forEach(p => { if (names.indexOf(p.brand) < 0) names.push(p.brand); });
+  const order = BRANDS.map(b => b.n).filter(n => names.indexOf(n) > -1).concat(names.filter(n => !BRANDS.some(b => b.n === n)).sort());
+  if (brandF && names.indexOf(brandF) < 0) brandF = "";
+  $("br").hidden = order.length < 2;
+  $("br").innerHTML = '<button class="pill" type="button" data-b="" aria-pressed="' + (!brandF) + '">Semua brand <i>' + items.length + "</i></button>" +
+    order.map(n => '<button class="pill" type="button" data-b="' + esc(n) + '" style="--c:' + esc(brandOf(n).c) + '" aria-pressed="' + (brandF === n) + '"><span class="dot"></span>' + esc(n) +
+      " <i>" + items.filter(p => p.brand === n).length + "</i></button>").join("");
+  if (brandF) items = items.filter(p => p.brand === brandF);
+
+  $("title").textContent = searching ? "Hasil Pencarian" : st.k === "aktif" ? "Program Berjalan" : st.k === "soon" ? "Segera Berakhir" : st.k === "up" ? "Akan Datang" : "Arsip Program";
+  $("list").innerHTML = items.map(p => progHTML(p)).join("");
+  items.forEach(p => { if (openIds.has(p.id)) { const el = document.getElementById(p.id); if (el) el.open = true; } });
+
+  const empty = $("empty");
+  empty.hidden = items.length > 0 || !PROGRAMS.length;
+  if (!items.length) empty.textContent = searching ? "Tidak ada program yang cocok. Coba kata lain."
+    : sKey === "aktif" ? "Belum ada program berjalan hari ini. Cek Akan datang atau Arsip."
+    : sKey === "soon" ? "Tidak ada program yang berakhir dalam " + SOON + " hari ke depan."
+    : sKey === "up" ? "Belum ada program yang akan datang." : "Belum ada arsip.";
+}
+
+function buildChrome() {
+  const run = PROGRAMS.filter(STATUSES[0].test).length, soon = PROGRAMS.filter(STATUSES[1].test).length;
+  const last = BATCHES[BATCHES.length - 1];
+  $("stamp").innerHTML = (last ? "<b>Diperbarui " + esc(fdt(last.updated)) + "</b>" : "") +
+    (PROGRAMS.length ? "<span>" + run + " berjalan</span>" + (soon ? "<span>" + soon + " segera berakhir</span>" : "") : "");
+  $("foot").innerHTML = (CFG.FOOTNOTE ? "<p>" + esc(CFG.FOOTNOTE) + "</p>" : "") +
+    (BATCHES.length ? '<details class="log"><summary>Riwayat pembaruan</summary>' +
+      BATCHES.map((b, i) => ({v: i + 1, at: b.updated, text: b.text})).reverse().map(c =>
+        '<div class="log-r"><b>Versi ' + esc(c.v) + "</b><span>" + esc(fdt(c.at)) + "</span><p>" + esc(c.text) + "</p></div>").join("") + "</details>" : "") +
+    (CFG.CREDIT ? '<p class="credit">' + esc(CFG.CREDIT) + "</p>" : "");
+}
+
+/* Interaksi */
+$("q").addEventListener("input", e => { query = e.target.value; render(); });
+$("st").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (b) { sKey = b.dataset.s; $("q").value = ""; query = ""; render(); } });
+$("br").addEventListener("click", e => { const b = e.target.closest("[data-b]"); if (b) { brandF = b.dataset.b; render(); } });
+$("tabs").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (b) { month = b.dataset.m; render(); } });
+$("list").addEventListener("click", e => {
+  const b = e.target.closest("[data-copy]");
+  if (!b) return;
+  e.preventDefault();
+  const p = PROGRAMS.find(x => x.id === b.dataset.copy);
+  if (p) copyText(shareText(p), b);
+});
+$("list").addEventListener("toggle", e => {
+  const t = e.target;
+  if (!t.classList || !t.classList.contains("prog")) return;
+  if (t.open) openIds.add(t.id); else openIds.delete(t.id);
+}, true);
+
+/* Buka program dari tautan #id */
+function openFromHash() {
+  const id = decodeURIComponent((location.hash || "").slice(1));
+  const p = id && PROGRAMS.find(x => x.id === id);
+  if (!p) return;
+  query = ""; $("q").value = ""; brandF = "";
+  sKey = p.st.k === "ok" ? "aktif" : p.st.k === "end" ? "arsip" : p.st.k;
+  if (p.st.k === "end") { const m = p.months[p.months.length - 1]; if (m) month = m.id; }
+  openIds.add(id);
+  render();
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView();
+}
+
+/* Muat file batch satu per satu. Satu file rusak tidak menghentikan yang lain. */
+function boot() {
+  const files = CFG.BATCH_FILES || [], bad = [];
+  let left = files.length;
+  const finish = () => {
+    BATCHES = window.BATCHES || [];
+    prepare(); buildChrome(); render(); openFromHash();
+    if (bad.length) { const e = $("err"); e.hidden = false; e.textContent = "File ini gagal dimuat: " + bad.join(", ") + ". Cek nama file di config.js dan isinya."; }
+  };
+  if (!left) return finish();
+  files.forEach(f => {
+    const s = document.createElement("script");
+    s.src = f;
+    s.onload = s.onerror = ev => { if (ev.type === "error") bad.push(f); if (--left === 0) finish(); };
+    document.head.appendChild(s);
+  });
+}
+window.addEventListener("hashchange", openFromHash);
+boot();
+</script>
+</body>
+</html>
