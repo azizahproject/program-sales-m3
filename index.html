@@ -18,6 +18,7 @@
   --chip:#E3E9E4; --chip-fg:#33443A; --focus:#1456D9; --gold:#FFCB2E; --on-fg:#F2F4F1;
   --ok-bg:#DCF1E3; --ok-fg:#0E5A2C; --soon-bg:#FFE2DD; --soon-fg:#9B1C14;
   --end-bg:#E3E7E4; --end-fg:#4F5E56; --up-bg:#DDE8FA; --up-fg:#1B4FA6;
+  --memo-bg:#FFEFC9; --memo-fg:#5E3B00; --memo-line:#E3BC5B; --memo-chip:#F2B632;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -25,7 +26,7 @@
     --nett:#FF8277; --disc:#62D18D; --hl:#3B3511; --old:#1F2923; --warn-bg:#2A1A18;
     --chip:#25312A; --chip-fg:#C5D3CA; --focus:#7FA8FF; --on-fg:#0E1310;
     --ok-bg:#1B3927; --ok-fg:#8EE0AB; --soon-bg:#4A1F1B; --soon-fg:#FFB1A8;
-    --end-bg:#26302B; --end-fg:#9BAAA2; --up-bg:#1C2D4D; --up-fg:#A9C6FF;
+    --end-bg:#26302B; --end-fg:#9BAAA2; --up-bg:#1C2D4D; --up-fg:#A9C6FF; --memo-bg:#33290F; --memo-fg:#FFD98A; --memo-line:#6B5420; --memo-chip:#E0A52A;
     color-scheme:dark;
   }
 }
@@ -34,7 +35,7 @@
   --nett:#FF8277; --disc:#62D18D; --hl:#3B3511; --old:#1F2923; --warn-bg:#2A1A18;
   --chip:#25312A; --chip-fg:#C5D3CA; --focus:#7FA8FF; --on-fg:#0E1310;
   --ok-bg:#1B3927; --ok-fg:#8EE0AB; --soon-bg:#4A1F1B; --soon-fg:#FFB1A8;
-  --end-bg:#26302B; --end-fg:#9BAAA2; --up-bg:#1C2D4D; --up-fg:#A9C6FF;
+  --end-bg:#26302B; --end-fg:#9BAAA2; --up-bg:#1C2D4D; --up-fg:#A9C6FF; --memo-bg:#33290F; --memo-fg:#FFD98A; --memo-line:#6B5420; --memo-chip:#E0A52A;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -66,6 +67,7 @@ h1{font:800 clamp(30px,7vw,44px)/1 var(--display);letter-spacing:-.025em;margin:
 .chip.soon{background:var(--soon-bg);color:var(--soon-fg)}
 .chip.end{background:var(--end-bg);color:var(--end-fg)}
 .chip.up{background:var(--up-bg);color:var(--up-fg)}
+.chip.memo{background:var(--memo-chip);color:#3A2400}
 .chip.new{background:var(--gold);color:#3A2A00}
 
 /* Bar filter lengket */
@@ -98,6 +100,7 @@ h1{font:800 clamp(30px,7vw,44px)/1 var(--display);letter-spacing:-.025em;margin:
 .p-off{display:flex;flex-direction:column;gap:1px;min-width:0}
 .p-off .l{font-size:13px;line-height:1.3;color:var(--muted)}
 .p-off .b{font:800 19px/1.2 var(--display);color:var(--nett);font-variant-numeric:tabular-nums}
+.p-off .b.nw{white-space:nowrap}
 .p-per{margin-top:10px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px}
 .p-per b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
 .chev{position:absolute;right:16px;top:20px;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
@@ -112,6 +115,20 @@ details[open]>summary .chev{transform:rotate(-135deg);top:24px}
 .btn:hover{background:var(--fg);color:var(--on-fg)}
 .btn.main{background:var(--fg);color:var(--on-fg)}
 .btn.main:hover{background:var(--surface);color:var(--fg)}
+
+/* Memorandum */
+.memo{margin-bottom:14px;padding:12px 14px;border:1px solid var(--memo-line);border-radius:4px;background:var(--memo-bg);color:var(--memo-fg)}
+.memo+.memo{margin-top:-6px}
+.memo-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px}
+.memo-h b{font:700 16px/1.25 var(--display)}
+.memo-h span{font-size:13px;font-variant-numeric:tabular-nums}
+.memo-no{margin:2px 0 0;font-size:13px;overflow-wrap:anywhere}
+.memo-s{margin:8px 0 0;font-weight:600}
+.memo ul{margin:8px 0 0;padding-left:20px}
+.memo li{margin:5px 0}
+.memo .acts{margin-top:12px}
+.memo .btn{border-color:var(--memo-fg);color:var(--memo-fg);background:transparent}
+.memo .btn:hover{background:var(--memo-fg);color:var(--memo-bg)}
 
 /* Blok isi */
 .blk{padding:16px 0;border-top:1px solid var(--line)}
@@ -309,13 +326,13 @@ function block(b) {
   if (b.fold) return '<details class="blk fold"><summary>' + head + '<span class="chev" aria-hidden="true"></span></summary>' + h + "</details>";
   return '<div class="blk' + (b.warn ? " warn" : "") + '">' + head + h + "</div>";
 }
-function pdfLinks(p) {
+function pdfLinks(p, noun, dl) {
   if (!p) return "";
   const v = p.view || (p.id && "https://drive.google.com/file/d/" + p.id + "/view");
   const d = p.download || (p.id && "https://drive.google.com/uc?export=download&id=" + p.id);
   let h = "";
-  if (v) h += '<a class="btn" href="' + esc(v) + '" target="_blank" rel="noopener">Lihat surat</a>';
-  if (d) h += '<a class="btn" href="' + esc(d) + '" download target="_blank" rel="noopener">Unduh PDF</a>';
+  if (v) h += '<a class="btn" href="' + esc(v) + '" target="_blank" rel="noopener">Lihat ' + (noun || "surat") + "</a>";
+  if (d) h += '<a class="btn" href="' + esc(d) + '" download target="_blank" rel="noopener">' + (dl || "Unduh PDF") + "</a>";
   return h;
 }
 
@@ -324,21 +341,31 @@ function headline(p) {
   for (const b of p.blocks || []) if (b.offers && b.offers.length) return b.offers;
   return [];
 }
+function memoHTML(m, i, n) {
+  const title = "Memorandum" + (n > 1 ? " " + (i + 1) : "");
+  return '<section class="memo"><div class="memo-h"><b>' + esc(title) + "</b>" + (m.date ? "<span>" + esc(fd(pd(m.date), true)) + "</span>" : "") + "</div>" +
+    (m.no ? '<p class="memo-no">No. ' + esc(m.no) + "</p>" : "") +
+    (m.summary ? '<p class="memo-s">' + esc(m.summary) + "</p>" : "") +
+    (m.changes && m.changes.length ? "<ul>" + m.changes.map(x => "<li>" + esc(x) + "</li>").join("") + "</ul>" : "") +
+    (m.pdf ? '<div class="acts">' + pdfLinks(m.pdf, "memorandum", "Unduh memorandum") + "</div>" : "") + "</section>";
+}
 function progHTML(p) {
+  const memos = p.memos || [];
   const st = p.st, br = brandOf(p.brand);
   const extra = (p.divisi === "kuliner" ? [p.brand] : []).concat(p.brands || []).map(b => '<span class="tag">' + esc(b) + "</span>").join("");
   const tags = (p.tags || []).map(t => '<span class="tag">' + esc(t) + "</span>").join("");
   const offs = headline(p).slice(0, 4).map(o =>
-    '<div class="p-off"><span class="b">' + esc(o.b) + '</span><span class="l">' + esc(o.l) + "</span></div>").join("");
+    '<div class="p-off"><span class="b' + (String(o.b).length <= 16 ? " nw" : "") + '">' + esc(o.b) + '</span><span class="l">' + esc(o.l) + "</span></div>").join("");
   return '<details class="prog" id="' + esc(p.id) + '" style="--c:' + esc(br.c) + '"><summary>' +
     '<div class="p-top"><span class="p-brand"><span class="dot"></span>' + esc(p.divisi === "kuliner" ? "Kuliner · " + gk(p) : p.brand) + "</span>" +
-    '<span class="chip ' + st.k + '">' + esc(st.label) + "</span>" + (isNew(p) ? '<span class="chip new">BARU</span>' : "") + "</div>" +
+    '<span class="chip ' + st.k + '">' + esc(st.label) + "</span>" + (isNew(p) ? '<span class="chip new">BARU</span>' : "") +
+    (memos.length ? '<span class="chip memo">Memorandum' + (memos.length > 1 ? " " + memos.length : "") + "</span>" : "") + "</div>" +
     '<div class="p-name">' + esc(p.name) + "</div>" +
     (offs ? '<div class="p-offers">' + offs + "</div>" : "") +
     '<div class="p-per"><b>' + esc(span(p.start, p.end)) + "</b>" + (p.no ? "<span>" + esc(p.no) + "</span>" : "") + "</div>" +
     '<span class="chev" aria-hidden="true"></span></summary>' +
-    '<div class="p-body"><div class="p-meta"><div class="tags">' + tags + extra + '</div>' +
-    '<div class="acts"><button class="btn main" type="button" data-copy="' + esc(p.id) + '">Salin untuk WhatsApp</button>' + pdfLinks(p.pdf) + "</div></div>" +
+    '<div class="p-body">' + memos.map((m, i) => memoHTML(m, i, memos.length)).reverse().join("") + '<div class="p-meta"><div class="tags">' + tags + extra + '</div>' +
+    '<div class="acts"><button class="btn main" type="button" data-copy="' + esc(p.id) + '">Salin untuk WhatsApp</button>' + pdfLinks(p.pdf, memos.length ? "surat utama" : "surat") + "</div></div>" +
     (p.blocks || []).map(block).join("") + "</div></details>";
 }
 function brandOf(n) { return BRANDS.find(b => b.n === n) || {n, c: FALLBACK}; }
@@ -348,6 +375,8 @@ function shareText(p) {
   const L = ["*" + p.name + "*", (p.divisi === "kuliner" ? "Kuliner · " + gk(p) + " · " : "") + p.brand + (p.no ? " · No. " + p.no : ""), "Periode: " + span(p.start, p.end)];
   if (p.tags && p.tags.length) L.push(p.tags.join(" · "));
   headline(p).forEach(o => L.push("• " + o.l + ": " + o.b + (o.s ? " (" + o.s + ")" : "")));
+  const lm = (p.memos || [])[(p.memos || []).length - 1];
+  if (lm) { L.push("", "*Memorandum" + (lm.date ? " " + fd(pd(lm.date), true) : "") + "*"); if (lm.summary) L.push(lm.summary); (lm.changes || []).forEach(x => L.push("- " + x)); }
   const mech = (p.blocks || []).find(b => b.list && /mekanisme|ketentuan/i.test(b.title)) || (p.blocks || []).find(b => b.list);
   if (mech) { L.push("", "*" + mech.title + "*"); mech.list.forEach(x => L.push("- " + x)); }
   L.push("", location.href.split("#")[0] + "#" + p.id);

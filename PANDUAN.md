@@ -39,3 +39,16 @@ Program divisi kuliner (restoran, cafe, dll) tampil di menu **Kuliner**, dikelom
 - `group: "Nama group resto"` (satu surat untuk satu group)
 
 Isian `brand` tetap diisi dengan brand produknya (misalnya Le Minerale). Program tanpa `divisi` otomatis masuk menu Reguler. Alamat langsung ke menu Kuliner: tambahkan `#kuliner` di akhir alamat situs.
+
+## Memorandum (revisi surat program)
+Memorandum menempel pada program utamanya, dikenali dari **No. Action Proposal yang sama**. Di data program tambahkan:
+```
+memos: [{
+  date: "2026-10-15",              // tanggal memorandum
+  no: "nomor dokumen memorandum",  // opsional
+  summary: "Satu kalimat ringkasan perubahan.",
+  changes: ["Perubahan 1 (sebelumnya ...).", "Perubahan 2."],
+  pdf: {view: "pdf/memo-nama.pdf", download: "pdf/memo-nama.pdf"}   // opsional
+}],
+```
+Isi program (periode, tabel, ringkasan) diperbarui ke nilai terbaru, supaya salesman tidak perlu menggabungkan dua surat. Di kartu muncul chip kuning "Memorandum", dan di dalam program muncul panel kuning berisi daftar perubahan. Memorandum kedua dan seterusnya ditambahkan ke daftar `memos` yang sama.

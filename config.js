@@ -6,15 +6,15 @@
 window.CONFIG = {
   /* Tanggal pembaruan yang tampil di atas. Ganti setiap kali kamu upload perubahan. Format "TAHUN-BULAN-HARI".
      Jika dikosongkan, dipakai tanggal dari batch terbaru. */
-  UPDATED: "2026-10-25",
+  UPDATED: "2026-10-27",
 
-  BATCH_FILES: ["programs/batch-1.js", "programs/batch-2.js", "programs/batch-3.js", "programs/batch-4.js"],
+  BATCH_FILES: ["programs/batch-1.js", "programs/batch-2.js", "programs/batch-3.js", "programs/batch-4.js", "programs/batch-5.js"],
 
   /* Brand baru: tambah satu baris. Warna dipakai untuk penanda brand. */
   BRANDS: [
     {n: "Teh Pucuk Harum", c: "#0F5C37"}, {n: "Le Minerale", c: "#12306B"}, {n: "Kopiko 78", c: "#3B2216"},
     {n: "Kopikap Jumbo", c: "#6B3A1E"}, {n: "Susu 7 Kurma", c: "#5C3513"}, {n: "Susu 7 Kurma Kids", c: "#8A4B12"},
-    {n: "Nipis Madu", c: "#7A5A00"}, {n: "Collagena", c: "#7A0F2E"}, {n: "Aspen", c: "#0B6E75"}
+    {n: "Nipis Madu", c: "#7A5A00"}, {n: "Collagena", c: "#7A0F2E"}, {n: "Aspen", c: "#0B6E75"}, {n: "Lintas Brand", c: "#3D4A44"}
   ],
 
   /* Kalender perusahaan. Tambah bulan baru saat kalendernya keluar. */
