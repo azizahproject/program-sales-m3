@@ -6,9 +6,9 @@
 window.CONFIG = {
   /* Tanggal pembaruan yang tampil di atas. Ganti setiap kali kamu upload perubahan. Format "TAHUN-BULAN-HARI".
      Jika dikosongkan, dipakai tanggal dari batch terbaru. */
-  UPDATED: "2026-10-27",
+  UPDATED: "2026-11-24",
 
-  BATCH_FILES: ["programs/batch-1.js", "programs/batch-2.js", "programs/batch-3.js", "programs/batch-4.js", "programs/batch-5.js"],
+  BATCH_FILES: ["programs/batch-1.js", "programs/batch-2.js", "programs/batch-3.js", "programs/batch-4.js", "programs/batch-5.js", "programs/batch-6.js", "programs/batch-7.js"],
 
   /* Brand baru: tambah satu baris. Warna dipakai untuk penanda brand. */
   BRANDS: [
